@@ -14,7 +14,7 @@ import {
   Button
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
-import { CharacterScreen } from './components/character';
+import { CharacterScreen, StatsScreen } from './components/character';
 
 class TitleScreen extends Component {
   static navigationOptions = {
@@ -76,7 +76,8 @@ const styles = StyleSheet.create({
 
 const EnnuiQuest = StackNavigator ({
     Home: { screen: TitleScreen },
-    Character: { screen: CharacterScreen }
+    Character: { screen: CharacterScreen },
+    Stats: { screen: StatsScreen }
 });
 
 AppRegistry.registerComponent('EnnuiQuest', () => EnnuiQuest);

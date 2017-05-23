@@ -6,7 +6,9 @@ import {
   View,
   Image,
   TextInput,
-  Picker
+  Picker,
+  Button,
+  ToastAndroid
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 
@@ -19,20 +21,32 @@ class CharacterScreen extends Component {
         super(props);
         this.state = {
             name : "",
-            race : "",
-            pclass : ""
+            race : "human",
+            pclass : "warrior"
         }
     }
     
+    verifyFields = () => {
+        for (let trait in this.state) {
+            if (typeof this.state[trait] === "string" && this.state[trait].length == 0) {
+                ToastAndroid.show(`One cannot venture without choosing thy ${trait}`, ToastAndroid.SHORT);
+                return;
+            }
+        }
+        const { navigate } = this.props.navigation;
+        navigate('Stats');
+    }
+
     render() {
         return (
-            <View style={{padding: 10}}>
+            <View style={styles.container}>
                 <Image
                     source={require('../img/header_title.png')}
                 />
                 <TextInput
                     style={{paddingTop: 20}}
                     placeholder="Name"
+                    autoCapitalize="words"
                     onChangeText={(text) => this.setState({name: text})}
                     value={this.state.name}
                 />
@@ -53,11 +67,46 @@ class CharacterScreen extends Component {
                     <Picker.Item label="Mage" value="mage" />
                     <Picker.Item label="Thief" value="thief" />
                 </Picker>
-                <Text>Race chosen: {this.state.race}</Text>
-                <Text>Class chosen: {this.state.pclass}</Text>
+                <Text style={styles.announcement}>
+                    Our new hero is
+                    <Text style={styles.chosen}>
+                        {` ${this.state.name}`}
+                    </Text>
+                    , a legendary
+                    <Text style={styles.chosen}>
+                        {` ${this.state.race} `}
+                    </Text>
+                    trained as a master
+                    <Text style={styles.chosen}>
+                        {` ${this.state.pclass} `}
+                    </Text>
+                </Text>
+                <Button
+                    title="Venture on your journey!"
+                    onPress={() => this.verifyFields()}
+                />
             </View>
         );
     }
 }
 
-export { CharacterScreen };
+class StatsScreen extends Component {
+    render() {
+        return <Text> Choose stats </Text>;
+    }
+}
+
+const styles = StyleSheet.create({
+    container: {
+        padding: 10
+    },
+    announcement: {
+        padding: 10,
+        fontSize: 20
+    },
+    chosen: {
+        fontWeight: 'bold'
+    }
+})
+
+export { CharacterScreen, StatsScreen };
