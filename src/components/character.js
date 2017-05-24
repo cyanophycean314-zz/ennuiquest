@@ -10,7 +10,39 @@ import {
   Button,
   ToastAndroid
 } from 'react-native';
+import {
+    Animated,
+    Easing
+} from 'react-native';
 import { StackNavigator } from 'react-navigation';
+import { gaussian } from '../lib/helpers';
+
+const races = ["Human", "Elf", "Dwarf", "Giant"];
+const pclasses = ["Warrior","Mage","Thief","Paladin"];
+
+class ArrayPicker extends Component {
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        const options = this.props.array.map((el) =>
+            <Picker.Item
+                label = {el}
+                value={el.toLowerCase()}
+                key={el}
+            />
+        );
+        return (
+            <Picker
+                selectedValue={this.props.selectedValue}
+                onValueChange={this.props.handleChange}
+            >
+                {options}
+            </Picker>
+        );
+    }
+}
 
 class CharacterScreen extends Component {
     static navigationOptions = {
@@ -21,8 +53,8 @@ class CharacterScreen extends Component {
         super(props);
         this.state = {
             name : "",
-            race : "human",
-            pclass : "warrior"
+            race : races[0],
+            pclass : pclasses[0]
         }
     }
     
@@ -34,7 +66,7 @@ class CharacterScreen extends Component {
             }
         }
         const { navigate } = this.props.navigation;
-        navigate('Stats');
+        navigate('Stats', {character: this.state});
     }
 
     render() {
@@ -51,22 +83,17 @@ class CharacterScreen extends Component {
                     value={this.state.name}
                 />
                 <Text>Race: </Text>
-                <Picker
+                <ArrayPicker
                     selectedValue={this.state.race}
-                    onValueChange={(text) => this.setState({race : text})}
-                >
-                    <Picker.Item label="Elf" value="elf" />
-                    <Picker.Item label="Human" value="human" />
-                </Picker>
+                    handleChange={(text) => this.setState({race : text})}
+                    array={races}
+                />
                 <Text>Class: </Text>
-                <Picker
+                <ArrayPicker
                     selectedValue={this.state.pclass}
                     onValueChange={(text) => this.setState({pclass : text})}
-                >
-                    <Picker.Item label="Warrior" value="warrior" />
-                    <Picker.Item label="Mage" value="mage" />
-                    <Picker.Item label="Thief" value="thief" />
-                </Picker>
+                    array={pclasses}
+                />
                 <Text style={styles.announcement}>
                     Our new hero is
                     <Text style={styles.chosen}>
@@ -90,9 +117,117 @@ class CharacterScreen extends Component {
     }
 }
 
-class StatsScreen extends Component {
+const traits = {
+    strength: {
+        mean: 10,
+        stdev: 2
+    },
+    vitality: {
+        mean: 8,
+        stdev: 1
+    },
+    intelligence: {
+        mean: 5,
+        stdev: 1
+    },
+    spirit: {
+        mean: 7,
+        stdev: 2
+    },
+    luck: {
+        mean: 10,
+        stdev: 3
+    }
+};
+
+class TraitRollers extends Component {
     render() {
-        return <Text> Choose stats </Text>;
+        let traitRollers = [];
+        for (let trait in traits) {
+            traitRollers.push(
+                <View style={{flex: 1, flexDirection: "row"}} key={trait} >
+                    <Text style={{flex: 5, fontSize: 20}}> {trait.charAt(0).toUpperCase() + trait.slice(1)}: </Text>
+                    <Text style={{flex: 2, fontSize: 20}}> {this.props.traitstate[trait]} </Text>
+                </View>
+            )
+        }
+        return (
+            <View style={{flex: 1}}>
+                {traitRollers}
+            </View>
+        );
+    }
+}
+
+class StatsScreen extends Component {
+    static navigationOptions = ({ navigation }) => ({
+        title: `Roll for ${navigation.state.params.character.name}'s statistics`
+    })
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            traits: {},
+            rolling: false
+        };
+        for (let trait in traits) {
+            this.state.traits[trait] = traits[trait].mean;
+        }
+    }
+    
+    reroll() {
+        let newTraits = {};
+        for (let trait in this.state.traits) {
+            if (typeof this.state.traits[trait] === "number") {
+                newTraits[trait] = Math.ceil(gaussian(traits[trait].mean, traits[trait].stdev)());
+            }
+        }
+        this.setState({traits: newTraits});
+    }
+
+    stopRoll() {
+        if (this.state.rolling) {
+            clearInterval(this.timer);
+            this.setState({rolling: false});
+        } else {
+            let { character } = this.props.navigation.state.params;
+            let { ptraits } = this.state.traits;
+            const { navigate } = this.props.navigation;
+            navigate("Adventure", {...character, ...ptraits});
+        }
+    }
+
+    componentDidMount() {
+        this.timer = setInterval(() => this.reroll(), 100);
+        this.setState({rolling: true})
+    }
+
+    render() {
+        return (
+            <View style={{flex: 1}}>
+                <Text style={styles.announcement}> Roll wisely </Text>
+                <View style={{flex:5}}>
+                    <TraitRollers
+                        traitstate={this.state.traits}
+                    />
+                    <Button
+                        title={this.state.rolling ? "Roll!" : "Venture!"}
+                        onPress={() => this.stopRoll()}
+                        style={{flex:1}}
+                    />
+                </View>
+            </View>
+        );
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.timer);
+    }
+}
+
+class AdventureScreen extends Component {
+    render() {
+        return <Text> Adventure </Text>;
     }
 }
 
@@ -101,6 +236,7 @@ const styles = StyleSheet.create({
         padding: 10
     },
     announcement: {
+        flex: 1,
         padding: 10,
         fontSize: 20
     },
@@ -109,4 +245,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export { CharacterScreen, StatsScreen };
+export { CharacterScreen, StatsScreen, AdventureScreen };
