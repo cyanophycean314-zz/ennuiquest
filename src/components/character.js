@@ -28,7 +28,7 @@ class ArrayPicker extends Component {
     render() {
         const options = this.props.array.map((el) =>
             <Picker.Item
-                label = {el}
+                label={el}
                 value={el.toLowerCase()}
                 key={el}
             />
@@ -53,8 +53,8 @@ class CharacterScreen extends Component {
         super(props);
         this.state = {
             name : "",
-            race : races[0],
-            pclass : pclasses[0]
+            race : races[0].toLowerCase(),
+            pclass : pclasses[0].toLowerCase()
         }
     }
     
@@ -91,7 +91,7 @@ class CharacterScreen extends Component {
                 <Text>Class: </Text>
                 <ArrayPicker
                     selectedValue={this.state.pclass}
-                    onValueChange={(text) => this.setState({pclass : text})}
+                    handleChange={(text) => this.setState({pclass : text})}
                     array={pclasses}
                 />
                 <Text style={styles.announcement}>
@@ -205,7 +205,7 @@ class StatsScreen extends Component {
     render() {
         return (
             <View style={{flex: 1}}>
-                <Text style={styles.announcement}> Roll wisely </Text>
+                <Text style={{flex: 1, fontSize: 20}}> Roll wisely </Text>
                 <View style={{flex:5}}>
                     <TraitRollers
                         traitstate={this.state.traits}
@@ -236,7 +236,6 @@ const styles = StyleSheet.create({
         padding: 10
     },
     announcement: {
-        flex: 1,
         padding: 10,
         fontSize: 20
     },
