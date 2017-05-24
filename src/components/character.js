@@ -225,12 +225,6 @@ class StatsScreen extends Component {
     }
 }
 
-class AdventureScreen extends Component {
-    render() {
-        return <Text> Adventure </Text>;
-    }
-}
-
 const styles = StyleSheet.create({
     container: {
         padding: 10
@@ -244,4 +238,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export { CharacterScreen, StatsScreen, AdventureScreen };
+export { CharacterScreen, StatsScreen };
