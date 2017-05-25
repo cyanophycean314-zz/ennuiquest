@@ -25,7 +25,7 @@ let images = {
 let getRedSquare = () => new Monster("Red square", gaussian(15,5)(), images.redsquare, "red square");
 let getMorden = () => new Monster("Morden", gaussian(20,5)(), images.morden, "morden blood");
 
-let monsters = [], N = 5;
+let monsters = [], N = 10;
 for (let i = 0; i < N; i++) {
     if (Math.random() < 0.3) {
         monsters.push(getRedSquare());

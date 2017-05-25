@@ -1,0 +1,11 @@
+Fix type of events system
+Fix up design (add some background colors)
+Separate styles from code
+Create a few more monsters
+Make drop system a bit more complicated
+Add cutscenes!
+Lint the code?
+Typescript the code?
+rename this.state.eventsListNum
+adaptive difficulty
+monster name modifiers

@@ -22,8 +22,14 @@ import { makeStory } from './story';
 class AdventureScreen extends Component {
     constructor (props) {
         super(props);
+        let fullCharInfo = this.props.navigation.state.params;
+        fullCharInfo["level"] = 1;
+        fullCharInfo["exp"] = 0;
+        fullCharInfo["getLevelCap"] = (level) => {
+            return 4 * level * level + 20 * level;
+        };
         this.state = {
-            charInfo: this.props.navigation.state.params,
+            charInfo: fullCharInfo,
             inventory: {
                 bug: 1,
                 rock: 5
@@ -42,6 +48,7 @@ class AdventureScreen extends Component {
                     charInfo = {this.state.charInfo}
                     inventory = {this.state.inventory}
                     handleInventory = {(newInventory) => this.setState({inventory: newInventory})}
+                    handleCharInfo = {(newCharInfo) => this.setState({charInfo: newCharInfo})}
                 />
                 <BottomPanel
                     charInfo = {this.state.charInfo}
@@ -90,14 +97,24 @@ class CenterPanel extends Component {
 
     nextEvent(eventnum, lastEvent) {
         //Monster slain
-        newInventory = Object.assign({}, this.props.inventory)
         if (this.state.eventsListNum % 2 === 0) {
+            newInventory = Object.assign({}, this.props.inventory);
+            //Pick up inventory
             if (lastEvent.drop in newInventory) {
                 newInventory[lastEvent.drop]++;
             } else {
                 newInventory[lastEvent.drop] = 1;
             }
             this.props.handleInventory(newInventory);
+
+            //Pick up exp
+            newCharInfo = Object.assign({}, this.props.charInfo);
+            newCharInfo.exp += Math.ceil(lastEvent.health);
+            if (newCharInfo.exp > newCharInfo.getLevelCap(newCharInfo.level)) {
+                newCharInfo.exp -= newCharInfo.getLevelCap(newCharInfo.level);
+                newCharInfo.level++;
+            }
+            this.props.handleCharInfo(newCharInfo);
         }
         this.displayLine(eventnum + 1);
     }
@@ -184,8 +201,12 @@ class Characteristics extends Component {
                 <View style={{flex:1}}>
                     {charDisplay}
                 </View>
-                <View style={{flex:3}}>
+                <View style={{flex:1}}>
                     {statDisplay}
+                </View>
+                <View style={{flex:1}}>
+                    <Text> Level: {this.props.charInfo.level} </Text>
+                    <Text> Experience: {this.props.charInfo.exp} </Text>
                 </View>
             </View>
         );
