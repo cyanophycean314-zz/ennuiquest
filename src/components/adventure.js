@@ -65,7 +65,7 @@ class CenterPanel extends Component {
         super(props);
         this.state = {
             eventsListNum: 0,
-            lineNumber: 0,
+            lineNum: 0,
         };
         this.eventsList = makeStory(this.props.charInfo);
         this.fadeValue = new Animated.Value(0);
@@ -85,7 +85,7 @@ class CenterPanel extends Component {
             }
         }
         let nextEvent = this.eventsList[this.state.eventsListNum][eventnum];
-        this.setState({lineNumber: eventnum});
+        this.setState({lineNum: eventnum});
         Animated.timing(
             this.fadeValue,
             {
@@ -96,9 +96,13 @@ class CenterPanel extends Component {
         ).start(() => this.nextEvent(eventnum, nextEvent));
     }
 
+    componentWillUnmount() {
+        this.fadeValue.setValue(0);
+    }
+
     nextEvent(eventnum, lastEvent) {
         //Monster slain
-        if (this.state.eventsListNum % 2 === 0) {
+        if (lastEvent.eventType === "monster") {
             newInventory = Object.assign({}, this.props.inventory);
             //Pick up inventory
             if (lastEvent.drop in newInventory) {
@@ -132,28 +136,29 @@ class CenterPanel extends Component {
             outputRange: [0,1,1,0]
         });
         let monsterOpacity = this.fadeValue.interpolate({
-            inputRange: [0,0.1,1],
-            outputRange: [0,1,0.2]
+            inputRange: [0,0.1,0.7,1],
+            outputRange: [0,1,1,0.2]
         });
         let shrinkingWidth = this.fadeValue.interpolate({
             inputRange: [0,1],
             outputRange: [Dimensions.get('window').width, 0]
         })
-        if (this.state.eventsListNum % 2 === 0) {
+        let thisEvent = this.eventsList[this.state.eventsListNum][this.state.lineNum];
+        if (thisEvent.eventType === "monster") {
             //Fight a monster!
             return (
                 <View style={adventureStyles.container}>
                     <View style={{flex: 4, justifyContent: "center"}} >
                         <Animated.Image
                             style={{height: 100, width: 100, opacity: monsterOpacity}} 
-                            source={this.eventsList[this.state.eventsListNum][this.state.lineNumber].pic}
+                            source={thisEvent.pic}
                         />
                     </View>
                     <View style={{flex: 1}}>
                         <Animated.View style={{height:10, backgroundColor: "green", width: shrinkingWidth}} />
                     </View>
                     <Text style={{flex: 1}} >
-                        Slaying a {this.eventsList[this.state.eventsListNum][this.state.lineNumber].name}
+                        Slaying a {thisEvent.name}
                     </Text>
                 </View>
             )
@@ -164,7 +169,7 @@ class CenterPanel extends Component {
                     <Animated.Text
                         style={{opacity: textOpacity, flex: 1, fontSize: 20}}
                     >
-                        {this.eventsList[this.state.eventsListNum][this.state.lineNumber].text}
+                        {thisEvent.text}
                     </Animated.Text>
                 </View>
             );

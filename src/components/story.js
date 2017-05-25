@@ -3,6 +3,7 @@ import { gaussian } from '../lib/helpers';
 
 class TextStory {
     constructor(text) {
+        this.eventType = "text";
         this.text = text;
         this.time = Math.max(text.length / 10, 1); //At least 1 second
     }
@@ -10,6 +11,7 @@ class TextStory {
 
 class Monster {
     constructor(name, health, pic, drop) {
+        this.eventType = "monster";
         this.name = name;
         this.health = health;
         this.pic = pic;
@@ -19,19 +21,21 @@ class Monster {
 
 let images = {
     redsquare : require('../img/redsquare.png'),
-    morden : require('../img/morden.png')
+    morden : require('../img/morden.png'),
+    goblin: require('../img/goblin.png'),
+    squelp: require('../img/squelp.png')
 };
 
-let getRedSquare = () => new Monster("Red square", gaussian(15,5)(), images.redsquare, "red square");
-let getMorden = () => new Monster("Morden", gaussian(20,5)(), images.morden, "morden blood");
+let getMonsters = [
+    () => new Monster("Red square", gaussian(15,5)(), images.redsquare, "red square"),
+    () => new Monster("Morden", gaussian(20,5)(), images.morden, "morden blood"),
+    () => new Monster("Goblin", gaussian(20,5)(), images.goblin, "goblin shell"),
+    () => new Monster("Squelp", gaussian(30,10)(), images.squelp, "green slime")
+];
 
-let monsters = [], N = 10;
+let monsters = [], N = 15;
 for (let i = 0; i < N; i++) {
-    if (Math.random() < 0.3) {
-        monsters.push(getRedSquare());
-    } else {
-        monsters.push(getMorden());
-    }
+    monsters.push(getMonsters[Math.floor(Math.random() * getMonsters.length)]());
 }
 
 export function makeStory(charInfo) {
@@ -41,12 +45,16 @@ export function makeStory(charInfo) {
         "only one hero could save them",
         "that was you",
         `${charInfo.character.name}`
-    ];
+    ].map((text) => new TextStory(text));
     for (let i in monsters) {
         monsters[i].time = monsters[i].health / charInfo.ptraits.strength;
     }
-    let story = prologue.map((text) => new TextStory(text))
-    return [monsters, story];
+    const conclusion = [
+        "He has vanquished the foes",
+        "the killing fields lay empty",
+        `${charInfo.character.name} stands victorious`
+    ].map((text) => new TextStory(text));
+    return [prologue, monsters, conclusion];
 }
 
 export const traits = {
