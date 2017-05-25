@@ -191,9 +191,8 @@ class StatsScreen extends Component {
             this.setState({rolling: false});
         } else {
             let { character } = this.props.navigation.state.params;
-            let { ptraits } = this.state.traits;
             const { navigate } = this.props.navigation;
-            navigate("Adventure", {...character, ...ptraits});
+            navigate("Adventure", {character: character, ptraits : this.state.traits});
         }
     }
 
