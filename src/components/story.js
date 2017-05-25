@@ -1,16 +1,19 @@
 
+import { gaussian } from '../lib/helpers';
+
 class TextStory {
     constructor(text) {
         this.text = text;
-        this.time = Math.ceil(text.length / 10);
+        this.time = text.length / 10;
     }
 }
 
 class Monster {
-    constructor(name, health, pic) {
+    constructor(name, health, pic, drop) {
         this.name = name;
         this.health = health;
         this.pic = pic;
+        this.drop = drop;
     }
 }
 
@@ -19,10 +22,17 @@ let images = {
     morden : require('../img/morden.png')
 };
 
-let monsters = [
-    new Monster("Red square", 10, images.redsquare),
-    new Monster("Morden", 30, images.morden),
-];
+let getRedSquare = () => new Monster("Red square", gaussian(15,5)(), images.redsquare, "red square");
+let getMorden = () => new Monster("Morden", gaussian(20,5)(), images.morden, "morden blood");
+
+let monsters = [], N = 5;
+for (let i = 0; i < N; i++) {
+    if (Math.random() < 0.3) {
+        monsters.push(getRedSquare());
+    } else {
+        monsters.push(getMorden());
+    }
+}
 
 export function makeStory(charInfo) {
     const prologue = [

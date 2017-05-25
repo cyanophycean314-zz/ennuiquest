@@ -24,7 +24,10 @@ class AdventureScreen extends Component {
         super(props);
         this.state = {
             charInfo: this.props.navigation.state.params,
-            inventory: ["bug","stick","rock","gem"]
+            inventory: {
+                bug: 1,
+                rock: 5
+            }
         };
     }
 
@@ -37,6 +40,8 @@ class AdventureScreen extends Component {
             <View style = {adventureStyles.container} >
                 <CenterPanel
                     charInfo = {this.state.charInfo}
+                    inventory = {this.state.inventory}
+                    handleInventory = {(newInventory) => this.setState({inventory: newInventory})}
                 />
                 <BottomPanel
                     charInfo = {this.state.charInfo}
@@ -71,15 +76,30 @@ class CenterPanel extends Component {
                 return;
             }
         }
+        let nextEvent = this.eventsList[this.state.eventsListNum][eventnum];
         this.setState({lineNumber: eventnum});
         Animated.timing(
             this.fadeValue,
             {
                 toValue: 1,
-                duration: (this.eventsList[this.state.eventsListNum][eventnum].time * 1000),
+                duration: (nextEvent.time * 1000),
                 easing: Easing.linear
             }
-        ).start(() => this.displayLine(eventnum + 1));
+        ).start(() => this.nextEvent(eventnum, nextEvent));
+    }
+
+    nextEvent(eventnum, lastEvent) {
+        //Monster slain
+        newInventory = Object.assign({}, this.props.inventory)
+        if (this.state.eventsListNum % 2 === 0) {
+            if (lastEvent.drop in newInventory) {
+                newInventory[lastEvent.drop]++;
+            } else {
+                newInventory[lastEvent.drop] = 1;
+            }
+            this.props.handleInventory(newInventory);
+        }
+        this.displayLine(eventnum + 1);
     }
 
     render() {
@@ -161,10 +181,10 @@ class Characteristics extends Component {
         }
         return (
             <View style={{flex:1}}>
-                <View>
+                <View style={{flex:1}}>
                     {charDisplay}
                 </View>
-                <View>
+                <View style={{flex:3}}>
                     {statDisplay}
                 </View>
             </View>
@@ -174,9 +194,10 @@ class Characteristics extends Component {
 
 class Inventory extends Component {
     render() {
-        items = this.props.inventory.map(
-            (item) => <Text key={item}> {item} </Text>
-        )
+        let items = [];
+        for (let item in this.props.inventory) {
+            items.push(<Text key = {item}>{item}: {this.props.inventory[item]} </Text>)
+        }
         return (
             <View style={{flex:1}}>
                 <Text> Inventory </Text>
