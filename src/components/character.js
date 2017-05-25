@@ -15,7 +15,9 @@ import {
     Easing
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
+
 import { gaussian } from '../lib/helpers';
+import { traits } from './story';
 
 const races = ["Human", "Elf", "Dwarf", "Giant"];
 const pclasses = ["Warrior","Mage","Thief","Paladin"];
@@ -116,29 +118,6 @@ class CharacterScreen extends Component {
         );
     }
 }
-
-const traits = {
-    strength: {
-        mean: 10,
-        stdev: 2
-    },
-    vitality: {
-        mean: 8,
-        stdev: 1
-    },
-    intelligence: {
-        mean: 5,
-        stdev: 1
-    },
-    spirit: {
-        mean: 7,
-        stdev: 2
-    },
-    luck: {
-        mean: 10,
-        stdev: 3
-    }
-};
 
 class TraitRollers extends Component {
     render() {

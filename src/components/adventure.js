@@ -17,7 +17,8 @@ import {
     Dimensions
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
-import { makeStory } from './story';
+import { makeStory, traits } from './story';
+import { capFirst, gaussian } from '../lib/helpers'
 
 class AdventureScreen extends Component {
     constructor (props) {
@@ -111,8 +112,14 @@ class CenterPanel extends Component {
             newCharInfo = Object.assign({}, this.props.charInfo);
             newCharInfo.exp += Math.ceil(lastEvent.health);
             if (newCharInfo.exp > newCharInfo.getLevelCap(newCharInfo.level)) {
+                //Level up!
                 newCharInfo.exp -= newCharInfo.getLevelCap(newCharInfo.level);
                 newCharInfo.level++;
+                //Add stats
+                for (let trait in newCharInfo.ptraits) {
+                    let growth = 2 * traits[trait].stdev * Math.log(newCharInfo.level);
+                    newCharInfo.ptraits[trait] += Math.min(1, Math.ceil(gaussian(2 * growth, growth)()));
+                }
             }
             this.props.handleCharInfo(newCharInfo);
         }
@@ -182,20 +189,21 @@ class BottomPanel extends Component {
 
 class Characteristics extends Component {
     render() {
+        let cInfo = this.props.charInfo;
         let charDisplay = [];
-        let cInfo = this.props.charInfo.character;
-        for (let prop in cInfo) {
+        for (let prop in cInfo.character) {
             charDisplay.push(
-                <Text key={prop}> {prop.charAt(0).toUpperCase() + prop.slice(1)}: {cInfo[prop]} </Text>
+                <Text key={prop}> {capFirst(prop)}: {cInfo.character[prop]} </Text>
             )
         }
         let statDisplay = [];
-        let sInfo = this.props.charInfo.ptraits;
-        for (let prop in sInfo) {
+        for (let prop in cInfo.ptraits) {
             statDisplay.push(
-                <Text key={prop}> {prop.charAt(0).toUpperCase() + prop.slice(1)}: {sInfo[prop]} </Text>
+                <Text key={prop}> {capFirst(prop)}: {cInfo.ptraits[prop]} </Text>
             );
         }
+        let maxexp = cInfo.getLevelCap(cInfo.level);
+        let fillpercent = cInfo.exp / maxexp * Dimensions.get("window").width / 2;
         return (
             <View style={{flex:1}}>
                 <View style={{flex:1}}>
@@ -205,8 +213,9 @@ class Characteristics extends Component {
                     {statDisplay}
                 </View>
                 <View style={{flex:1}}>
-                    <Text> Level: {this.props.charInfo.level} </Text>
-                    <Text> Experience: {this.props.charInfo.exp} </Text>
+                    <Text> Level: {cInfo.level} </Text>
+                    <Text> Experience: {cInfo.exp}</Text>
+                    <View style={{height: 5, width: fillpercent, backgroundColor: "blue"}} />
                 </View>
             </View>
         );

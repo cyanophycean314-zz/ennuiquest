@@ -1,4 +1,8 @@
 
+export function capFirst(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export function gaussian(mean, stdev) {
     var y2;
     var use_last = false;

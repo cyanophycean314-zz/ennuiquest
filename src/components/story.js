@@ -4,7 +4,7 @@ import { gaussian } from '../lib/helpers';
 class TextStory {
     constructor(text) {
         this.text = text;
-        this.time = text.length / 10;
+        this.time = Math.max(text.length / 10, 1); //At least 1 second
     }
 }
 
@@ -48,3 +48,26 @@ export function makeStory(charInfo) {
     let story = prologue.map((text) => new TextStory(text))
     return [monsters, story];
 }
+
+export const traits = {
+    strength: {
+        mean: 10,
+        stdev: 2
+    },
+    vitality: {
+        mean: 8,
+        stdev: 1
+    },
+    intelligence: {
+        mean: 5,
+        stdev: 1
+    },
+    spirit: {
+        mean: 7,
+        stdev: 2
+    },
+    luck: {
+        mean: 10,
+        stdev: 3
+    }
+};
